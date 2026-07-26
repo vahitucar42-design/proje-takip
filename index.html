@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#17325c" />
+  <title>ECOŞ-EMOŞ PROJE | Proje Takip</title>
+  <style>
+    :root{
+      --bg:#f3f6fb;--panel:#fff;--panel-soft:#f8fafc;--text:#172033;--muted:#68758a;
+      --border:#d9e1ec;--border-strong:#c5cfdd;--primary:#2459d3;--primary-dark:#1945ac;
+      --success:#14815a;--warning:#ad6508;--danger:#c33d4e;--info:#2e65be;
+      --shadow:0 12px 32px rgba(21,35,64,.08);--radius:16px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    button:disabled{cursor:not-allowed;opacity:.55}
+    a{color:inherit}
+
+    .auth-screen{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 20% 10%,rgba(30,125,170,.24),transparent 36%),linear-gradient(145deg,#0d1727,#17325c 55%,#102235)}
+    .auth-card{width:min(440px,100%);background:rgba(255,255,255,.97);border:1px solid rgba(255,255,255,.5);border-radius:24px;padding:30px;box-shadow:0 30px 90px rgba(0,0,0,.32)}
+    .auth-logo-wrap{margin:-8px auto 6px;display:grid;place-items:center;min-height:118px;background:#111d2d;border-radius:18px;overflow:hidden}
+    .auth-logo{display:block;width:100%;height:auto;max-height:150px;object-fit:contain}
+    .auth-card h1{margin:20px 0 5px;text-align:center;font-size:24px}.auth-card>.auth-subtitle{margin:0 0 22px;text-align:center;color:var(--muted);font-size:13px}
+    .auth-form{display:grid;gap:13px}.auth-form label{display:grid;gap:7px;font-size:12px;font-weight:850;color:var(--muted)}
+    .auth-submit{width:100%;margin-top:3px;padding:12px 14px}.auth-links{display:flex;justify-content:center;margin-top:15px}
+    .auth-link{border:0;background:transparent;color:var(--primary);font-weight:800;font-size:12px;text-decoration:underline;text-underline-offset:3px}
+    .auth-error{display:none;margin:0 0 14px;padding:11px 12px;border-radius:11px;background:#fff0f2;border:1px solid #f1c1c8;color:#9f2737;font-size:12px;line-height:1.45}.auth-error.show{display:block}
+    .auth-info{margin-top:17px;padding-top:15px;border-top:1px solid var(--border);color:var(--muted);font-size:11px;line-height:1.55;text-align:center}
+    .config-warning{display:none;margin-bottom:14px;padding:12px;border-radius:12px;background:#fff7e8;border:1px solid #efcf91;color:#835119;font-size:12px;line-height:1.45}.config-warning.show{display:block}
+    .shell{min-height:100vh;display:none}
+    .shell.authenticated{display:block}
+    .brand-logo-box{width:66px;height:44px;border-radius:11px;display:grid;place-items:center;overflow:hidden;background:#111d2d;flex:0 0 auto}
+    .brand-logo{width:100%;height:100%;object-fit:cover;object-position:center}
+    .cloud-status{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:7px 10px;background:#fff;color:var(--muted);font-size:10px;font-weight:800;white-space:nowrap}.cloud-status::before{content:"";width:7px;height:7px;border-radius:50%;background:#94a3b8}.cloud-status.saved::before{background:var(--success)}.cloud-status.saving::before{background:var(--warning)}.cloud-status.error::before{background:var(--danger)}
+    .user-email{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:11px;font-weight:700}
+    .header{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.95);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+    .header-inner{max-width:1500px;margin:auto;padding:16px 24px 0}
+    .header-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-bottom:15px}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .brand-mark{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#17325c,#2f63c7);color:#fff;font-weight:900;box-shadow:0 8px 20px rgba(36,89,211,.24)}
+    .brand h1{margin:0;font-size:20px;line-height:1.2}.brand p{margin:4px 0 0;color:var(--muted);font-size:12px}
+    .header-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+    .tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+    .tab{border:0;background:transparent;color:var(--muted);padding:13px 17px;border-bottom:3px solid transparent;font-weight:800;white-space:nowrap}
+    .tab:hover{color:var(--text)}.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+    .main{max-width:1500px;margin:auto;padding:24px 24px 48px}
+    .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px}
+    .page-head h2{margin:0;font-size:24px}.page-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
+    .view{display:none}.view.active{display:block}
+
+    .btn{border:1px solid var(--border);background:#fff;color:var(--text);border-radius:11px;padding:10px 14px;font-weight:800}
+    .btn:hover{background:#f8fafc}.btn.primary{border-color:var(--primary);background:var(--primary);color:#fff}.btn.primary:hover{background:var(--primary-dark)}
+    .btn.danger{border-color:#efc4ca;color:var(--danger);background:#fff}.btn.small{padding:7px 10px;font-size:12px}.btn.icon{min-width:36px;padding:7px 9px}
+    .btn.linklike{padding:0;border:0;background:transparent;color:var(--primary);font-weight:900;text-decoration:underline;text-underline-offset:3px}
+
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+    .stat{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:17px;box-shadow:var(--shadow);min-height:112px}
+    .stat .label{color:var(--muted);font-size:12px}.stat .value{margin-top:9px;font-size:24px;font-weight:900;letter-spacing:-.4px}.stat .hint{margin-top:7px;color:var(--muted);font-size:11px}
+    .money-lines{display:grid;gap:4px;font-size:16px!important;line-height:1.25}.money-lines:empty::after{content:"₺0,00";font-size:24px}
+
+    .toolbar{display:grid;grid-template-columns:minmax(230px,1fr) 220px 210px auto;gap:10px;margin-bottom:14px}
+    .field{width:100%;border:1px solid var(--border);border-radius:11px;padding:11px 12px;background:#fff;color:var(--text);outline:none}
+    .field:focus{border-color:#91a9e9;box-shadow:0 0 0 3px rgba(36,89,211,.10)}
+
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .table-wrap{overflow:auto}
+    table{width:100%;border-collapse:separate;border-spacing:0}
+    th{position:sticky;top:0;z-index:2;padding:13px 12px;text-align:left;font-size:11px;letter-spacing:.02em;color:var(--muted);background:#f7f9fc;border-bottom:1px solid var(--border-strong);white-space:nowrap}
+    td{padding:15px 12px;vertical-align:middle;font-size:13px;border-bottom:2px solid #e5eaf1}
+    tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#fafcff}
+    .projects-table{min-width:1080px}.payments-table{min-width:1000px}.report-table{min-width:720px}
+    .project-name{font-weight:850;max-width:250px}.company{color:var(--muted);font-size:11px;margin-top:4px}.last-note{max-width:320px;line-height:1.45}.last-note-text{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.last-note-date{color:var(--muted);font-size:10px;margin-top:4px}
+    .code-btn{border:0;background:transparent;color:var(--primary);font-weight:900;padding:0;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+    .code-btn:hover{color:var(--primary-dark)}
+    .badge{display:inline-flex;align-items:center;border-radius:999px;padding:6px 9px;font-weight:850;font-size:10px;white-space:nowrap}
+    .badge.tubitak{color:#1f4d95;background:#e8f1ff}.badge.kosgeb{color:#126947;background:#e5f7ef}.badge.bakanlik{color:#835119;background:#fff2dd}.badge.other{color:#5b4c88;background:#f0ebff}
+    .status{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:850;white-space:nowrap}.dot{width:8px;height:8px;border-radius:50%;background:#94a3b8}
+    .status.success .dot{background:var(--success)}.status.warning .dot{background:var(--warning)}.status.info .dot{background:var(--info)}.status.danger .dot{background:var(--danger)}
+    .money{font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap}.muted{color:var(--muted)}.deadline-danger{color:var(--danger);font-weight:850}.deadline-warning{color:var(--warning);font-weight:850}
+    .empty{padding:54px 20px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--text);margin-bottom:6px}
+
+    .report-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.report-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .report-card.full{grid-column:1/-1}.card-title{padding:16px 18px;border-bottom:1px solid var(--border);font-weight:900}.card-body{padding:17px 18px}
+    .summary-list{display:grid;gap:10px}.summary-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-bottom:10px;border-bottom:1px dashed var(--border)}.summary-row:last-child{border-bottom:0;padding-bottom:0}
+    .currency-report{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.mini-stat{border:1px solid var(--border);border-radius:12px;padding:13px;background:var(--panel-soft)}.mini-stat span{display:block;color:var(--muted);font-size:11px}.mini-stat strong{display:block;margin-top:7px;font-size:16px}
+
+    .dashboard-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(320px,.8fr);gap:16px}.dashboard-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.dashboard-card.full{grid-column:1/-1}.dashboard-list{display:grid}.dashboard-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border)}.dashboard-row:last-child{border-bottom:0}.dashboard-row-title{font-weight:850}.dashboard-row-sub{margin-top:4px;color:var(--muted);font-size:11px}.dashboard-row-right{text-align:right;font-size:12px}
+    .payment-groups{display:grid;gap:14px}.payment-project{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.payment-project-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:16px 18px;border-bottom:1px solid var(--border);background:#fafcff}.payment-project-title{min-width:0}.payment-project-title h3{margin:6px 0 0;font-size:16px}.payment-project-title p{margin:4px 0 0;color:var(--muted);font-size:11px}.payment-project-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.payment-metrics{display:grid;grid-template-columns:repeat(3,minmax(130px,1fr));gap:0;border-bottom:1px solid var(--border)}.payment-metric{padding:12px 18px;border-right:1px solid var(--border)}.payment-metric:last-child{border-right:0}.payment-metric span{display:block;color:var(--muted);font-size:10px}.payment-metric strong{display:block;margin-top:5px;font-size:14px}.payment-project .payments-table{min-width:760px}
+
+    .overlay{position:fixed;inset:0;background:rgba(15,23,42,.52);opacity:0;visibility:hidden;transition:.2s;z-index:60}.overlay.open{opacity:1;visibility:visible}
+    .drawer{position:fixed;top:0;right:0;width:min(720px,100%);height:100vh;background:#fff;z-index:61;transform:translateX(100%);transition:.24s;box-shadow:-20px 0 50px rgba(15,23,42,.18);display:flex;flex-direction:column}.drawer.open{transform:translateX(0)}
+    .drawer-head{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.drawer-head h3{margin:0;font-size:20px}.drawer-head p{margin:5px 0 0;color:var(--muted);font-size:12px}.drawer-actions{display:flex;gap:7px}.icon-btn{border:1px solid var(--border);background:#fff;border-radius:10px;width:38px;height:38px;font-size:18px}
+    .drawer-body{padding:21px 22px 42px;overflow:auto}.detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.detail-box{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--panel-soft)}.detail-box span{display:block;color:var(--muted);font-size:10px;margin-bottom:6px}.detail-box strong{font-size:13px;overflow-wrap:anywhere}
+    .contact-box{margin-top:11px;border:1px solid var(--border);border-radius:12px;padding:13px;line-height:1.65;background:#fff;font-size:13px}.section-title{margin:23px 0 11px;display:flex;align-items:center;justify-content:space-between;gap:12px}.section-title h4{margin:0;font-size:15px}.timeline{display:grid;gap:9px}.item{border:1px solid var(--border);border-radius:12px;padding:12px}.item-head{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:var(--muted)}.item p{margin:8px 0 0;line-height:1.5;white-space:pre-wrap}.payment-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.item-actions{display:flex;align-items:center;gap:7px}
+
+    .modal{position:fixed;inset:50% auto auto 50%;transform:translate(-50%,-48%) scale(.98);width:min(820px,calc(100% - 28px));max-height:92vh;overflow:auto;background:#fff;border-radius:18px;z-index:71;box-shadow:0 24px 80px rgba(15,23,42,.28);opacity:0;visibility:hidden;transition:.2s}.modal.open{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+    .modal.small-modal{width:min(560px,calc(100% - 28px))}.modal-head{padding:19px 21px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}.modal-head h3{margin:0}.modal-body{padding:19px 21px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.form-group{display:grid;gap:7px}.form-group.full{grid-column:1/-1}.form-group label{font-size:11px;color:var(--muted);font-weight:850}.form-hint{font-size:10px;color:var(--muted)}textarea.field{min-height:88px;resize:vertical}.modal-actions{padding:15px 21px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:10px}.modal-actions-right{display:flex;gap:9px}
+    .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:#111827;color:#fff;padding:11px 15px;border-radius:10px;opacity:0;visibility:hidden;transition:.2s;z-index:100;font-size:12px}.toast.show{opacity:1;visibility:visible;transform:translate(-50%,0)}
+    .file-input{display:none}
+
+    @media(max-width:1100px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar{grid-template-columns:1fr 1fr}.currency-report{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:980px){.dashboard-grid{grid-template-columns:1fr}.dashboard-card.full{grid-column:auto}}
+    @media(max-width:760px){.auth-card{padding:22px 18px}.auth-logo-wrap{min-height:96px}.header-inner{padding:12px 14px 0}.header-row{align-items:flex-start}.brand p{display:none}.header-actions .desktop-only{display:none}.main{padding:18px 13px 34px}.page-head{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.report-grid{grid-template-columns:1fr}.report-card.full{grid-column:auto}.currency-report{grid-template-columns:1fr 1fr}.payment-project-head{flex-direction:column}.payment-project-actions{justify-content:flex-start}.payment-metrics{grid-template-columns:1fr}.payment-metric{border-right:0;border-bottom:1px solid var(--border)}.payment-metric:last-child{border-bottom:0}.form-grid,.detail-grid{grid-template-columns:1fr}.drawer-head,.drawer-body{padding-left:16px;padding-right:16px}.modal-actions{flex-direction:column-reverse}.modal-actions-right{display:grid;grid-template-columns:1fr 1fr}.modal-actions .btn{width:100%}.tab{padding:12px 14px}}
+  </style>
+</head>
+<body>
+  <section class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <div class="auth-logo-wrap"><img class="auth-logo" src="logo-ecos-emos-proje.png" alt="ECOŞ-EMOŞ PROJE logosu"></div>
+      <h1>Proje Takip Sistemi</h1>
+      <p class="auth-subtitle">Devam etmek için e-posta ve şifrenizle giriş yapın.</p>
+      <div class="config-warning" id="configWarning">Supabase bağlantı bilgileri henüz girilmemiş. Kurulum adımlarındaki Project URL ve Publishable Key bilgilerini index.html dosyasına ekleyin.</div>
+      <div class="auth-error" id="authError"></div>
+      <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+        <label>E-posta<input class="field" name="email" type="email" autocomplete="username" required placeholder="ornek@eposta.com"></label>
+        <label>Şifre<input class="field" name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="••••••••"></label>
+        <button class="btn primary auth-submit" id="loginButton" type="submit">Giriş Yap</button>
+      </form>
+      <form class="auth-form" id="recoveryForm" onsubmit="handlePasswordUpdate(event)" hidden>
+        <label>Yeni şifre<input class="field" name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="En az 8 karakter"></label>
+        <label>Yeni şifre tekrar<input class="field" name="passwordAgain" type="password" autocomplete="new-password" required minlength="8" placeholder="Şifreyi tekrar yazın"></label>
+        <button class="btn primary auth-submit" type="submit">Şifreyi Güncelle</button>
+      </form>
+      <div class="auth-links"><button class="auth-link" id="forgotPasswordButton" type="button" onclick="sendPasswordReset()">Şifremi unuttum</button></div>
+      <div class="auth-info">ECOŞ-EMOŞ PROJE • Yetkili kullanıcı erişimi<br>Verileriniz Supabase üzerinde kullanıcı hesabınıza bağlı olarak saklanır.</div>
+    </div>
+  </section>
+
+  <div class="shell" id="appShell">
+    <header class="header">
+      <div class="header-inner">
+        <div class="header-row">
+          <div class="brand">
+            <div class="brand-logo-box"><img class="brand-logo" src="logo-ecos-emos-proje.png" alt="ECOŞ-EMOŞ PROJE"></div>
+            <div><h1>ECOŞ-EMOŞ PROJE</h1><p>Proje, danışmanlık ve tahsilat yönetimi</p></div>
+          </div>
+          <div class="header-actions">
+            <span class="cloud-status" id="cloudStatus">Bağlanıyor</span>
+            <span class="user-email desktop-only" id="currentUserEmail"></span>
+            <button class="btn desktop-only" onclick="downloadBackup()">Yedek Al</button>
+            <label class="btn desktop-only" for="backupInput">Yedek Yükle</label>
+            <input id="backupInput" class="file-input" type="file" accept="application/json" onchange="importBackup(event)">
+            <button class="btn primary" onclick="openProjectModal()">+ Yeni Proje</button>
+            <button class="btn" onclick="handleLogout()">Çıkış</button>
+          </div>
+        </div>
+        <nav class="tabs" aria-label="Ana bölümler">
+          <button class="tab active" data-tab="projects" onclick="switchTab('projects')">Projeler</button>
+          <button class="tab" data-tab="payments" onclick="switchTab('payments')">Tahsilatlar</button>
+          <button class="tab" data-tab="reports" onclick="switchTab('reports')">Raporlar</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main">
+      <section id="projectsView" class="view active">
+        <div class="page-head"><div><h2>Projeler</h2><p>Proje numarasına tıklayarak ayrıntıları, tahsilatları ve notları açabilirsiniz.</p></div></div>
+        <div class="toolbar">
+          <input class="field" id="projectSearch" placeholder="Proje no, firma veya proje ara..." oninput="renderProjects()">
+          <select class="field" id="agencyFilter" onchange="renderProjects()"><option value="">Tüm kurumlar</option><option>TÜBİTAK</option><option>KOSGEB</option><option>Sanayi ve Teknoloji Bakanlığı</option><option>Diğer</option></select>
+          <select class="field" id="statusFilter" onchange="renderProjects()"><option value="">Tüm durumlar</option></select>
+          <button class="btn" onclick="clearProjectFilters()">Filtreleri Temizle</button>
+        </div>
+        <div class="card table-wrap">
+          <table class="projects-table">
+            <thead><tr>
+              <th>Proje No</th><th>Proje Adı</th><th>Kurum</th><th>Durum</th><th>Son Not</th><th>Proje Bitiş Süresi</th>
+            </tr></thead>
+            <tbody id="projectsBody"></tbody>
+          </table>
+          <div id="projectsEmpty" class="empty" hidden><strong>Kayıt bulunamadı</strong>Filtreleri değiştirin veya yeni bir proje ekleyin.</div>
+        </div>
+      </section>
+
+      <section id="paymentsView" class="view">
+        <div class="page-head">
+          <div><h2>Tahsilatlar</h2><p>Her projenin ücret, tahsilat ve kalan bilgilerini ayrı ayrı izleyin.</p></div>
+          <button class="btn" onclick="exportPaymentsCSV()">Tahsilat CSV</button>
+        </div>
+        <div class="stats" id="paymentStats"></div>
+        <div class="toolbar" style="grid-template-columns:minmax(230px,1fr) 220px 210px auto">
+          <input class="field" id="paymentSearch" placeholder="Proje no, firma veya açıklama ara..." oninput="renderPayments()">
+          <select class="field" id="paymentCurrencyFilter" onchange="renderPayments()"><option value="">Tüm para birimleri</option><option value="TRY">TL</option><option value="EUR">Euro</option><option value="USD">Dolar</option></select>
+          <input class="field" id="paymentMonthFilter" type="month" onchange="renderPayments()">
+          <button class="btn" onclick="clearPaymentFilters()">Filtreleri Temizle</button>
+        </div>
+        <div id="paymentGroups" class="payment-groups"></div>
+        <div id="paymentsEmpty" class="card empty" hidden><strong>Proje veya tahsilat bulunamadı</strong>Filtreleri değiştirin ya da bir proje ayrıntısından tahsilat ekleyin.</div>
+      </section>
+
+      <section id="reportsView" class="view">
+        <div class="page-head">
+          <div><h2>Raporlar</h2><p>Ücretleri, tahsilatları ve kalan tutarları para birimlerine göre inceleyin.</p></div>
+          <button class="btn primary" onclick="exportProjectsCSV()">Proje Raporu CSV</button>
+        </div>
+        <div class="stats" id="reportStats"></div>
+        <div id="currencyReports" class="report-grid" style="margin-bottom:16px"></div>
+        <div class="report-grid">
+          <div class="report-card"><div class="card-title">Kurumlara Göre Projeler</div><div class="card-body"><div id="agencySummary" class="summary-list"></div></div></div>
+          <div class="report-card"><div class="card-title">Durumlara Göre Projeler</div><div class="card-body"><div id="statusSummary" class="summary-list"></div></div></div>
+          <div class="report-card full"><div class="card-title">Proje Bazlı Finansal Özet</div><div class="table-wrap"><table class="report-table"><thead><tr><th>Proje No</th><th>Proje</th><th>Toplam Ücret</th><th>Tahsilat</th><th>Kalan</th><th>Tahsilat Oranı</th></tr></thead><tbody id="financialReportBody"></tbody></table></div></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay" onclick="closeTopLayer()"></div>
+
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-head"><div><h3 id="drawerTitle">Proje Detayı</h3><p id="drawerSubtitle"></p></div><div class="drawer-actions"><button class="icon-btn" title="Projeyi düzenle" onclick="editActiveProject()">✎</button><button class="icon-btn" title="Kapat" onclick="closeDrawer()">×</button></div></div>
+    <div class="drawer-body" id="drawerBody"></div>
+  </aside>
+
+  <div class="modal" id="projectModal">
+    <form id="projectForm" onsubmit="saveProject(event)">
+      <div class="modal-head"><h3 id="projectModalTitle">Yeni Proje</h3><button type="button" class="icon-btn" onclick="closeProjectModal()">×</button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <input type="hidden" name="id">
+          <div class="form-group"><label>Proje No</label><input class="field" name="code" readonly><span class="form-hint">Otomatik olarak ECEM-YIL-SIRA biçiminde üretilir.</span></div>
+          <div class="form-group"><label>Firma *</label><input class="field" name="company" required></div>
+          <div class="form-group full"><label>Proje Adı *</label><input class="field" name="title" required></div>
+          <div class="form-group"><label>Kurum *</label><select class="field" name="agency" required><option value="">Seçiniz</option><option>TÜBİTAK</option><option>KOSGEB</option><option>Sanayi ve Teknoloji Bakanlığı</option><option>Diğer</option></select></div>
+          <div class="form-group"><label>Program / Çağrı</label><input class="field" name="program" placeholder="Örn. 1507, İş Geliştirme"></div>
+          <div class="form-group"><label>Durum *</label><select class="field" name="status" id="projectStatus" required></select></div>
+          <div class="form-group"><label>Para Birimi *</label><select class="field" name="currency" required><option value="TRY">TL (₺)</option><option value="EUR">Euro (€)</option><option value="USD">Dolar ($)</option></select></div>
+          <div class="form-group"><label>Proje Yazım Ücreti</label><input class="field" name="writingFee" type="number" min="0" step="0.01" value="0"></div>
+          <div class="form-group"><label>Teknik Danışmanlık Ücreti</label><input class="field" name="technicalFee" type="number" min="0" step="0.01" value="0"></div>
+          <div class="form-group"><label>Anlaşma Tarihi</label><input class="field" name="agreementDate" type="date" onchange="previewProjectCode()"></div>
+          <div class="form-group"><label>Proje Bitiş Tarihi</label><input class="field" name="deadline" type="date"></div>
+          <div class="form-group"><label>Firma Yetkilisi</label><input class="field" name="contactName"></div>
+          <div class="form-group"><label>Telefon</label><input class="field" name="contactPhone"></div>
+          <div class="form-group full"><label>E-posta</label><input class="field" name="contactEmail" type="email"></div>
+          <div class="form-group full"><label id="noteLabel">İlk Proje Notu</label><textarea class="field" name="note" placeholder="Görüşme, yapılacak iş veya önemli bir açıklama..."></textarea></div>
+          <div class="form-group" id="initialPaymentGroup"><label>İlk Tahsilat</label><input class="field" name="initialPayment" type="number" min="0" step="0.01" value="0"></div>
+          <div class="form-group" id="initialPaymentDateGroup"><label>İlk Tahsilat Tarihi</label><input class="field" name="initialPaymentDate" type="date"></div>
+        </div>
+      </div>
+      <div class="modal-actions"><button type="button" id="deleteProjectBtn" class="btn danger" hidden onclick="deleteEditingProject()">Projeyi Sil</button><div class="modal-actions-right"><button type="button" class="btn" onclick="closeProjectModal()">Vazgeç</button><button type="submit" class="btn primary">Kaydet</button></div></div>
+    </form>
+  </div>
+
+  <div class="modal small-modal" id="paymentModal">
+    <form id="paymentForm" onsubmit="savePayment(event)">
+      <div class="modal-head"><h3>Tahsilat Ekle</h3><button type="button" class="icon-btn" onclick="closePaymentModal()">×</button></div>
+      <div class="modal-body"><input type="hidden" name="projectId"><div class="form-grid"><div class="form-group"><label>Tutar *</label><input class="field" name="amount" type="number" min="0.01" step="0.01" required></div><div class="form-group"><label>Tarih *</label><input class="field" name="date" type="date" required></div><div class="form-group full"><label>Açıklama</label><input class="field" name="description" placeholder="Örn. Avans, 2. ödeme"></div></div></div>
+      <div class="modal-actions"><span></span><div class="modal-actions-right"><button type="button" class="btn" onclick="closePaymentModal()">Vazgeç</button><button type="submit" class="btn primary">Tahsilatı Kaydet</button></div></div>
+    </form>
+  </div>
+
+  <div class="modal small-modal" id="noteModal">
+    <form id="noteForm" onsubmit="saveNote(event)">
+      <div class="modal-head"><h3>Proje Notu Ekle</h3><button type="button" class="icon-btn" onclick="closeNoteModal()">×</button></div>
+      <div class="modal-body"><input type="hidden" name="projectId"><div class="form-group"><label>Not *</label><textarea class="field" name="text" required></textarea></div></div>
+      <div class="modal-actions"><span></span><div class="modal-actions-right"><button type="button" class="btn" onclick="closeNoteModal()">Vazgeç</button><button type="submit" class="btn primary">Notu Kaydet</button></div></div>
+    </form>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Supabase Dashboard > Project Settings > Data API bölümünden alın.
+    const SUPABASE_URL='https://rxjkjkchpmzjzpcfqvvk.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY='sb_publishable_KB6Gfe6lDJT_L9iL7Gg5LA_20ZpZOdP';
+
+    const STORAGE_KEY='projectTracker.v2';
+    const OLD_STORAGE_KEY='projectTrackerDemo';
+    const PREFIX='ECEM';
+    const STATUSES=['Taslak','Hazırlanıyor','Firma Bilgisi Bekleniyor','Başvuru Yapıldı','Değerlendirmede','Revizyon','Onaylandı','Yürütülüyor','Tamamlandı','Reddedildi','İptal Edildi'];
+    const CURRENCIES=['TRY','EUR','USD'];
+    let projects=[];
+    let activeProjectId=null;
+    let currentTab='projects';
+    let toastTimer=null;
+    let supabaseClient=null;
+    let currentUser=null;
+    let cloudReady=false;
+    let cloudSaveTimer=null;
+    let cloudSaveInFlight=false;
+    let cloudSavePending=false;
+
+    const uid=()=>Date.now()+Math.floor(Math.random()*100000);
+    const localISODate=(date=new Date())=>{
+      const d=new Date(date.getTime()-date.getTimezoneOffset()*60000);
+      return d.toISOString().slice(0,10);
+    };
+    const escapeHtml=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+    const formatDate=value=>value?new Intl.DateTimeFormat('tr-TR').format(new Date(value+'T12:00:00')):'—';
+    const formatMoney=(value,currency='TRY')=>new Intl.NumberFormat('tr-TR',{style:'currency',currency,minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(value)||0);
+    const totalFee=p=>(Number(p.writingFee)||0)+(Number(p.technicalFee)||0);
+    const paidOf=p=>(p.payments||[]).reduce((sum,x)=>sum+(Number(x.amount)||0),0);
+    const balanceOf=p=>Math.max(totalFee(p)-paidOf(p),0);
+
+    function normalizeProject(raw){
+      const writingFromOld=raw.writingFee!==undefined?raw.writingFee:(raw.agreed!==undefined?raw.agreed:0);
+      return {
+        id:Number(raw.id)||uid(),code:String(raw.code||''),company:String(raw.company||''),title:String(raw.title||''),agency:String(raw.agency||'Diğer'),program:String(raw.program||''),status:String(raw.status||'Hazırlanıyor'),
+        writingFee:Number(writingFromOld)||0,technicalFee:Number(raw.technicalFee)||0,currency:CURRENCIES.includes(raw.currency)?raw.currency:'TRY',agreementDate:String(raw.agreementDate||''),deadline:String(raw.deadline||''),
+        contactName:String(raw.contactName||''),contactPhone:String(raw.contactPhone||''),contactEmail:String(raw.contactEmail||''),
+        payments:Array.isArray(raw.payments)?raw.payments.map(x=>({id:Number(x.id)||uid(),amount:Number(x.amount)||0,date:String(x.date||localISODate()),description:String(x.description||'Tahsilat')})):[],
+        notes:Array.isArray(raw.notes)?raw.notes.map(x=>({id:Number(x.id)||uid(),date:String(x.date||localISODate()),text:String(x.text||'')})):[]
+      };
+    }
+
+    function assignMissingCodes(list){
+      const used=new Set(list.map(p=>p.code).filter(Boolean));
+      const ordered=[...list].sort((a,b)=>(a.agreementDate||'').localeCompare(b.agreementDate||'')||a.id-b.id);
+      ordered.forEach(p=>{
+        if(p.code)return;
+        const year=(p.agreementDate||localISODate()).slice(0,4)||String(new Date().getFullYear());
+        let seq=1,code='';
+        do{code=`${PREFIX}-${year}-${String(seq).padStart(2,'0')}`;seq++;}while(used.has(code));
+        p.code=code;used.add(code);
+      });
+      return list;
+    }
+
+    function loadLocalProjects(){
+      try{
+        const raw=localStorage.getItem(STORAGE_KEY) || localStorage.getItem(OLD_STORAGE_KEY);
+        if(raw){
+          const parsed=JSON.parse(raw);
+          const list=Array.isArray(parsed)?parsed:parsed.projects;
+          if(Array.isArray(list))return assignMissingCodes(list.map(normalizeProject));
+        }
+      }catch(err){console.warn('Yerel kayıtlar okunamadı',err)}
+      return [];
+    }
+
+    function saveLocalCopy(){
+      try{localStorage.setItem(STORAGE_KEY,JSON.stringify(projects));return true}
+      catch(err){showToast('Yerel yedek kaydedilemedi.');return false}
+    }
+
+    function setCloudStatus(text,state=''){
+      const el=document.getElementById('cloudStatus');
+      if(!el)return;
+      el.textContent=text;
+      el.className=`cloud-status ${state}`.trim();
+    }
+
+    function persist(){
+      const localOk=saveLocalCopy();
+      scheduleCloudSave();
+      return localOk;
+    }
+
+    function scheduleCloudSave(){
+      if(!cloudReady||!currentUser||!supabaseClient)return;
+      clearTimeout(cloudSaveTimer);
+      setCloudStatus('Değişiklik bekliyor','saving');
+      cloudSaveTimer=setTimeout(saveCloudState,350);
+    }
+
+    async function saveCloudState(){
+      if(!cloudReady||!currentUser||!supabaseClient)return;
+      if(cloudSaveInFlight){cloudSavePending=true;return}
+      cloudSaveInFlight=true;
+      cloudSavePending=false;
+      setCloudStatus('Kaydediliyor','saving');
+      try{
+        const {error}=await supabaseClient.from('app_state').upsert({
+          user_id:currentUser.id,
+          projects,
+          updated_at:new Date().toISOString()
+        },{onConflict:'user_id'});
+        if(error)throw error;
+        setCloudStatus('Buluta kaydedildi','saved');
+      }catch(err){
+        console.error('Supabase kayıt hatası',err);
+        setCloudStatus('Kayıt hatası','error');
+        showToast('Buluta kayıt yapılamadı. İnternet bağlantısını kontrol edin.');
+      }finally{
+        cloudSaveInFlight=false;
+        if(cloudSavePending)saveCloudState();
+      }
+    }
+
+    async function loadCloudState(){
+      if(!currentUser||!supabaseClient)return;
+      cloudReady=false;
+      setCloudStatus('Veriler yükleniyor','saving');
+      try{
+        const {data,error}=await supabaseClient.from('app_state').select('projects').eq('user_id',currentUser.id).maybeSingle();
+        if(error)throw error;
+        if(data&&Array.isArray(data.projects)){
+          projects=assignMissingCodes(data.projects.map(normalizeProject));
+        }else{
+          const localProjects=loadLocalProjects();
+          let initialProjects=[];
+          if(localProjects.length&&confirm(`Bu tarayıcıda ${localProjects.length} yerel proje kaydı bulundu. Bunlar Supabase hesabınıza aktarılsın mı?`)){
+            initialProjects=localProjects;
+          }
+          projects=assignMissingCodes(initialProjects.map(normalizeProject));
+          const {error:insertError}=await supabaseClient.from('app_state').insert({user_id:currentUser.id,projects});
+          if(insertError)throw insertError;
+        }
+        saveLocalCopy();
+        cloudReady=true;
+        render();
+        setCloudStatus('Buluta bağlı','saved');
+      }catch(err){
+        console.error('Supabase yükleme hatası',err);
+        projects=loadLocalProjects();
+        cloudReady=false;
+        render();
+        setCloudStatus('Bağlantı hatası','error');
+        showToast('Supabase verileri yüklenemedi. SQL kurulumunu ve bağlantı bilgilerini kontrol edin.');
+      }
+    }
+
+    function generateProjectCode(year,ignoreId=null){
+      const cleanYear=String(year||new Date().getFullYear()).slice(0,4);
+      const numbers=projects.filter(p=>p.id!==ignoreId&&p.code.startsWith(`${PREFIX}-${cleanYear}-`)).map(p=>Number(p.code.split('-').pop())).filter(Number.isFinite);
+      const next=(numbers.length?Math.max(...numbers):0)+1;
+      return `${PREFIX}-${cleanYear}-${String(next).padStart(2,'0')}`;
+    }
+
+    function agencyClass(agency){if(agency==='TÜBİTAK')return'tubitak';if(agency==='KOSGEB')return'kosgeb';if(agency==='Sanayi ve Teknoloji Bakanlığı')return'bakanlik';return'other'}
+    function statusClass(status){if(['Onaylandı','Tamamlandı'].includes(status))return'success';if(['Reddedildi','İptal Edildi'].includes(status))return'danger';if(['Firma Bilgisi Bekleniyor','Revizyon'].includes(status))return'warning';return'info'}
+    function deadlineInfo(value){
+      if(!value)return{label:'—',cls:''};
+      const end=new Date(value+'T23:59:59');const now=new Date();const days=Math.ceil((end-now)/86400000);
+      if(days<0)return{label:`${formatDate(value)} (${Math.abs(days)} gün geçti)`,cls:'deadline-danger'};
+      if(days===0)return{label:`${formatDate(value)} (bugün)`,cls:'deadline-danger'};
+      if(days<=30)return{label:`${formatDate(value)} (${days} gün)`,cls:'deadline-warning'};
+      return{label:`${formatDate(value)} (${days} gün)`,cls:''};
+    }
+
+    function sumByCurrency(valueGetter,source=projects){
+      const out={TRY:0,EUR:0,USD:0};source.forEach(p=>{out[p.currency]=(out[p.currency]||0)+(Number(valueGetter(p))||0)});return out;
+    }
+    function moneyLines(values){return CURRENCIES.filter(c=>Math.abs(values[c]||0)>.0001).map(c=>`<div>${formatMoney(values[c],c)}</div>`).join('')}
+
+    function switchTab(tab){
+      currentTab=tab;
+      document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
+      document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+      document.getElementById(`${tab}View`).classList.add('active');
+      if(tab==='projects')renderProjects();if(tab==='payments')renderPayments();if(tab==='reports')renderReports();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function render(){renderProjects();renderPayments();renderReports()}
+
+    function renderDashboard(){
+      const terminal=['Tamamlandı','Reddedildi','İptal Edildi'];
+      const active=projects.filter(p=>!terminal.includes(p.status));
+      const completed=projects.filter(p=>p.status==='Tamamlandı').length;
+      const balance=sumByCurrency(balanceOf),paid=sumByCurrency(paidOf);
+      const now=new Date();
+      const urgent=active.filter(p=>p.deadline).sort((a,b)=>a.deadline.localeCompare(b.deadline)).slice(0,8);
+      const overdue=active.filter(p=>p.deadline&&new Date(p.deadline+'T23:59:59')<now).length;
+      document.getElementById('dashboardStats').innerHTML=`
+        <div class="stat"><div class="label">Toplam Proje</div><div class="value">${projects.length}</div><div class="hint">${active.length} proje aktif durumda</div></div>
+        <div class="stat"><div class="label">Tamamlanan Proje</div><div class="value">${completed}</div><div class="hint">Durumu tamamlandı olanlar</div></div>
+        <div class="stat"><div class="label">Toplam Tahsilat</div><div class="value money-lines">${moneyLines(paid)}</div><div class="hint">Para birimleri ayrı gösterilir</div></div>
+        <div class="stat"><div class="label">Kalan Tutar</div><div class="value money-lines">${moneyLines(balance)}</div><div class="hint">${overdue} geciken proje bulunuyor</div></div>`;
+      document.getElementById('dashboardDeadlines').innerHTML=urgent.length?urgent.map(p=>{const d=deadlineInfo(p.deadline);return`<div class="dashboard-row"><div><button class="code-btn" onclick="openDrawer(${p.id})">${escapeHtml(p.code)}</button><div class="dashboard-row-title">${escapeHtml(p.title)}</div><div class="dashboard-row-sub">${escapeHtml(p.company)} · ${escapeHtml(p.agency)} · ${escapeHtml(p.status)}</div></div><div class="dashboard-row-right ${d.cls}">${escapeHtml(d.label)}<div class="muted" style="margin-top:5px">Kalan: ${formatMoney(balanceOf(p),p.currency)}</div></div></div>`}).join(''):'<div class="empty"><strong>Yaklaşan proje yok</strong>Bitiş tarihi girilmiş aktif proje bulunmuyor.</div>';
+      renderCountSummary('dashboardStatusSummary',projects.map(p=>p.status));
+      const recent=allPayments().slice(0,6);
+      document.getElementById('dashboardRecentPayments').innerHTML=recent.length?recent.map(x=>`<div class="dashboard-row"><div><button class="code-btn" onclick="openDrawer(${x.projectId})">${escapeHtml(x.code)}</button><div class="dashboard-row-title">${escapeHtml(x.company)} · ${escapeHtml(x.title)}</div><div class="dashboard-row-sub">${formatDate(x.date)} · ${escapeHtml(x.description||'Tahsilat')}</div></div><div class="dashboard-row-right money">${formatMoney(x.amount,x.currency)}</div></div>`).join(''):'<div class="empty"><strong>Henüz tahsilat yok</strong>Proje ayrıntısından ilk tahsilatı ekleyebilirsiniz.</div>';
+    }
+
+    function renderProjects(){
+      const q=(document.getElementById('projectSearch')?.value||'').trim().toLocaleLowerCase('tr-TR');
+      const agency=document.getElementById('agencyFilter')?.value||'';const status=document.getElementById('statusFilter')?.value||'';
+      const filtered=projects.filter(p=>(!q||[p.code,p.company,p.title,p.program,...(p.notes||[]).map(n=>n.text)].join(' ').toLocaleLowerCase('tr-TR').includes(q))&&(!agency||p.agency===agency)&&(!status||p.status===status));
+      const body=document.getElementById('projectsBody');const empty=document.getElementById('projectsEmpty');
+      body.innerHTML=filtered.map(p=>{const d=deadlineInfo(p.deadline);const lastNote=(p.notes||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))||Number(b.id)-Number(a.id))[0];return`<tr>
+        <td><button class="code-btn" onclick="openDrawer(${p.id})">${escapeHtml(p.code)}</button></td>
+        <td><div class="project-name">${escapeHtml(p.title)}</div><div class="company">${escapeHtml(p.company)}</div></td>
+        <td><span class="badge ${agencyClass(p.agency)}">${escapeHtml(p.agency)}</span></td>
+        <td><span class="status ${statusClass(p.status)}"><span class="dot"></span>${escapeHtml(p.status)}</span></td>
+        <td class="last-note">${lastNote?`<div class="last-note-text" title="${escapeHtml(lastNote.text)}">${escapeHtml(lastNote.text)}</div><div class="last-note-date">${formatDate(lastNote.date)}</div>`:'<span class="muted">Henüz not yok</span>'}</td>
+        <td class="${d.cls}">${escapeHtml(d.label)}</td>
+      </tr>`}).join('');
+      empty.hidden=filtered.length>0;
+    }
+
+    function allPayments(){
+      return projects.flatMap(p=>(p.payments||[]).map(pay=>({...pay,projectId:p.id,code:p.code,company:p.company,title:p.title,currency:p.currency}))).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+    }
+
+    function renderPayments(){
+      const q=(document.getElementById('paymentSearch')?.value||'').trim().toLocaleLowerCase('tr-TR');
+      const currency=document.getElementById('paymentCurrencyFilter')?.value||'';
+      const month=document.getElementById('paymentMonthFilter')?.value||'';
+      const matchingProjects=projects.filter(p=>{
+        const text=[p.code,p.company,p.title,p.program,...(p.payments||[]).map(x=>x.description)].join(' ').toLocaleLowerCase('tr-TR');
+        const monthPayments=(p.payments||[]).filter(x=>!month||x.date.startsWith(month));
+        return (!q||text.includes(q))&&(!currency||p.currency===currency)&&(!month||monthPayments.length>0);
+      }).sort((a,b)=>a.code.localeCompare(b.code,'tr'));
+      const filteredPayments=matchingProjects.flatMap(p=>(p.payments||[]).filter(x=>!month||x.date.startsWith(month)).map(x=>({...x,currency:p.currency})));
+      const totals={TRY:0,EUR:0,USD:0};filteredPayments.forEach(x=>totals[x.currency]+=Number(x.amount)||0);
+      document.getElementById('paymentStats').innerHTML=`
+        <div class="stat"><div class="label">Gösterilen Proje</div><div class="value">${matchingProjects.length}</div><div class="hint">Filtreye uyan proje sayısı</div></div>
+        <div class="stat"><div class="label">TL Tahsilat</div><div class="value">${formatMoney(totals.TRY,'TRY')}</div><div class="hint">Gösterilen tahsilatlar</div></div>
+        <div class="stat"><div class="label">Euro Tahsilat</div><div class="value">${formatMoney(totals.EUR,'EUR')}</div><div class="hint">Gösterilen tahsilatlar</div></div>
+        <div class="stat"><div class="label">Dolar Tahsilat</div><div class="value">${formatMoney(totals.USD,'USD')}</div><div class="hint">Gösterilen tahsilatlar</div></div>`;
+      const groups=document.getElementById('paymentGroups'),empty=document.getElementById('paymentsEmpty');
+      groups.innerHTML=matchingProjects.map(p=>{
+        const movements=(p.payments||[]).filter(x=>!month||x.date.startsWith(month)).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+        const periodTotal=movements.reduce((sum,x)=>sum+(Number(x.amount)||0),0);
+        return `<section class="payment-project">
+          <div class="payment-project-head">
+            <div class="payment-project-title"><button class="code-btn" onclick="openDrawer(${p.id})">${escapeHtml(p.code)}</button><h3>${escapeHtml(p.title)}</h3><p>${escapeHtml(p.company)} · ${escapeHtml(p.agency)} · ${escapeHtml(p.status)}</p></div>
+            <div class="payment-project-actions">${month?`<span class="badge other">Seçili dönem: ${formatMoney(periodTotal,p.currency)}</span>`:''}<button class="btn small primary" onclick="openPaymentModal(${p.id})">+ Tahsilat Ekle</button></div>
+          </div>
+          <div class="payment-metrics"><div class="payment-metric"><span>Toplam Hizmet Bedeli</span><strong>${formatMoney(totalFee(p),p.currency)}</strong></div><div class="payment-metric"><span>Toplam Tahsilat</span><strong>${formatMoney(paidOf(p),p.currency)}</strong></div><div class="payment-metric"><span>Kalan</span><strong>${formatMoney(balanceOf(p),p.currency)}</strong></div></div>
+          <div class="table-wrap"><table class="payments-table"><thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${movements.length?movements.map(x=>`<tr><td>${formatDate(x.date)}</td><td>${escapeHtml(x.description||'Tahsilat')}</td><td class="money">${formatMoney(x.amount,p.currency)}</td><td><button class="btn small danger" onclick="deletePayment(${p.id},${x.id},true)">Sil</button></td></tr>`).join(''):`<tr><td colspan="4" class="muted">${month?'Seçilen ayda tahsilat bulunmuyor.':'Henüz tahsilat girilmedi.'}</td></tr>`}</tbody></table></div>
+        </section>`;
+      }).join('');
+      empty.hidden=matchingProjects.length>0;
+    }
+
+    function renderReports(){
+      const totals=sumByCurrency(totalFee),writing=sumByCurrency(p=>p.writingFee),technical=sumByCurrency(p=>p.technicalFee),paid=sumByCurrency(paidOf),balance=sumByCurrency(balanceOf);
+      const completed=projects.filter(p=>p.status==='Tamamlandı').length;const active=projects.filter(p=>!['Tamamlandı','Reddedildi','İptal Edildi'].includes(p.status)).length;
+      document.getElementById('reportStats').innerHTML=`
+        <div class="stat"><div class="label">Toplam Proje</div><div class="value">${projects.length}</div><div class="hint">Kayıtlı tüm projeler</div></div>
+        <div class="stat"><div class="label">Aktif Proje</div><div class="value">${active}</div><div class="hint">Devam eden süreçler</div></div>
+        <div class="stat"><div class="label">Tamamlanan Proje</div><div class="value">${completed}</div><div class="hint">Durumu tamamlandı olanlar</div></div>
+        <div class="stat"><div class="label">Kalan Tutar</div><div class="value money-lines">${moneyLines(balance)}</div><div class="hint">Para birimleri ayrı gösterilir</div></div>`;
+      document.getElementById('currencyReports').innerHTML=CURRENCIES.map(c=>`<div class="report-card"><div class="card-title">${c==='TRY'?'Türk Lirası':c==='EUR'?'Euro':'Dolar'} Özeti</div><div class="card-body"><div class="currency-report"><div class="mini-stat"><span>Yazım Ücreti</span><strong>${formatMoney(writing[c],c)}</strong></div><div class="mini-stat"><span>Teknik Danışmanlık</span><strong>${formatMoney(technical[c],c)}</strong></div><div class="mini-stat"><span>Tahsilat</span><strong>${formatMoney(paid[c],c)}</strong></div><div class="mini-stat"><span>Kalan</span><strong>${formatMoney(balance[c],c)}</strong></div></div></div></div>`).join('');
+      renderCountSummary('agencySummary',projects.map(p=>p.agency));renderCountSummary('statusSummary',projects.map(p=>p.status));
+      document.getElementById('financialReportBody').innerHTML=projects.slice().sort((a,b)=>a.code.localeCompare(b.code,'tr')).map(p=>{const total=totalFee(p),paid=paidOf(p),rate=total>0?Math.min(100,Math.round(paid/total*100)):0;return`<tr><td><button class="code-btn" onclick="openDrawer(${p.id})">${escapeHtml(p.code)}</button></td><td><strong>${escapeHtml(p.title)}</strong><div class="company">${escapeHtml(p.company)}</div></td><td class="money">${formatMoney(total,p.currency)}</td><td class="money">${formatMoney(paid,p.currency)}</td><td class="money">${formatMoney(balanceOf(p),p.currency)}</td><td>%${rate}</td></tr>`}).join('');
+    }
+
+    function renderCountSummary(target,values){
+      const counts={};values.forEach(v=>counts[v]=(counts[v]||0)+1);const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'tr'));
+      document.getElementById(target).innerHTML=entries.length?entries.map(([name,count])=>`<div class="summary-row"><span>${escapeHtml(name)}</span><strong>${count}</strong></div>`).join(''):'<div class="muted">Henüz veri yok.</div>';
+    }
+
+    function openDrawer(id){
+      const p=projects.find(x=>x.id===Number(id));if(!p)return;activeProjectId=p.id;
+      document.getElementById('drawerTitle').textContent=`${p.code} · ${p.title}`;document.getElementById('drawerSubtitle').textContent=p.company;
+      const d=deadlineInfo(p.deadline);
+      document.getElementById('drawerBody').innerHTML=`
+        <div class="detail-grid">
+          <div class="detail-box"><span>Kurum</span><strong>${escapeHtml(p.agency)}</strong></div><div class="detail-box"><span>Program / Çağrı</span><strong>${escapeHtml(p.program||'—')}</strong></div><div class="detail-box"><span>Durum</span><strong>${escapeHtml(p.status)}</strong></div>
+          <div class="detail-box"><span>Proje Yazım Ücreti</span><strong>${formatMoney(p.writingFee,p.currency)}</strong></div><div class="detail-box"><span>Teknik Danışmanlık</span><strong>${formatMoney(p.technicalFee,p.currency)}</strong></div><div class="detail-box"><span>Toplam Hizmet Bedeli</span><strong>${formatMoney(totalFee(p),p.currency)}</strong></div>
+          <div class="detail-box"><span>Tahsilat</span><strong>${formatMoney(paidOf(p),p.currency)}</strong></div><div class="detail-box"><span>Kalan</span><strong>${formatMoney(balanceOf(p),p.currency)}</strong></div><div class="detail-box"><span>Proje Bitiş Süresi</span><strong class="${d.cls}">${escapeHtml(d.label)}</strong></div>
+          <div class="detail-box"><span>Anlaşma Tarihi</span><strong>${formatDate(p.agreementDate)}</strong></div><div class="detail-box"><span>Proje Bitiş Tarihi</span><strong>${formatDate(p.deadline)}</strong></div><div class="detail-box"><span>Para Birimi</span><strong>${escapeHtml(p.currency)}</strong></div>
+        </div>
+        <div class="contact-box"><strong>Firma İletişimi</strong><br>${escapeHtml(p.contactName||'Yetkili belirtilmedi')}<br>${escapeHtml(p.contactPhone||'Telefon belirtilmedi')}<br>${p.contactEmail?`<a href="mailto:${escapeHtml(p.contactEmail)}">${escapeHtml(p.contactEmail)}</a>`:'E-posta belirtilmedi'}</div>
+        <div class="section-title"><h4>Tahsilatlar</h4><button class="btn small primary" onclick="openPaymentModal(${p.id})">+ Tahsilat Ekle</button></div>
+        <div class="timeline">${p.payments.length?p.payments.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<div class="item payment-row"><div><strong>${escapeHtml(x.description||'Tahsilat')}</strong><div class="muted" style="margin-top:5px;font-size:11px">${formatDate(x.date)}</div></div><div class="item-actions"><strong>${formatMoney(x.amount,p.currency)}</strong><button class="btn small icon danger" title="Tahsilatı sil" onclick="deletePayment(${p.id},${x.id})">×</button></div></div>`).join(''):'<div class="item muted">Henüz tahsilat girilmedi.</div>'}</div>
+        <div class="section-title"><h4>Proje Notları</h4><button class="btn small" onclick="openNoteModal(${p.id})">+ Not Ekle</button></div>
+        <div class="timeline">${p.notes.length?p.notes.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<div class="item"><div class="item-head"><span>Proje notu</span><span>${formatDate(x.date)}</span></div><p>${escapeHtml(x.text)}</p><div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn small danger" onclick="deleteNote(${p.id},${x.id})">Notu Sil</button></div></div>`).join(''):'<div class="item muted">Henüz not girilmedi.</div>'}</div>`;
+      openOverlay();document.getElementById('drawer').classList.add('open');document.getElementById('drawer').setAttribute('aria-hidden','false');
+    }
+
+    function openProjectModal(id=null){
+      const form=document.getElementById('projectForm');form.reset();form.elements.writingFee.value='0';form.elements.technicalFee.value='0';form.elements.initialPayment.value='0';form.elements.initialPaymentDate.value=localISODate();form.elements.agreementDate.value=localISODate();
+      const p=id?projects.find(x=>x.id===Number(id)):null;
+      document.getElementById('projectModalTitle').textContent=p?'Projeyi Düzenle':'Yeni Proje Ekle';document.getElementById('deleteProjectBtn').hidden=!p;document.getElementById('initialPaymentGroup').hidden=!!p;document.getElementById('initialPaymentDateGroup').hidden=!!p;document.getElementById('noteLabel').textContent=p?'Yeni Not Ekle (isteğe bağlı)':'İlk Proje Notu';
+      if(p){['id','code','company','title','agency','program','status','writingFee','technicalFee','currency','agreementDate','deadline','contactName','contactPhone','contactEmail'].forEach(k=>form.elements[k].value=p[k]??'')}
+      else{form.elements.status.value='Hazırlanıyor';form.elements.currency.value='TRY';form.elements.code.value=generateProjectCode(new Date().getFullYear())}
+      openOverlay();document.getElementById('projectModal').classList.add('open');setTimeout(()=>form.elements.company.focus(),100);
+    }
+    function previewProjectCode(){const f=document.getElementById('projectForm');if(f.elements.id.value)return;const year=(f.elements.agreementDate.value||localISODate()).slice(0,4);f.elements.code.value=generateProjectCode(year)}
+    function editActiveProject(){if(activeProjectId){closeDrawer(false);openProjectModal(activeProjectId)}}
+    function closeProjectModal(){document.getElementById('projectModal').classList.remove('open');refreshOverlay()}
+    function openPaymentModal(id){const f=document.getElementById('paymentForm');f.reset();f.elements.projectId.value=id;f.elements.date.value=localISODate();openOverlay();document.getElementById('paymentModal').classList.add('open');setTimeout(()=>f.elements.amount.focus(),100)}
+    function closePaymentModal(){document.getElementById('paymentModal').classList.remove('open');refreshOverlay()}
+    function openNoteModal(id){const f=document.getElementById('noteForm');f.reset();f.elements.projectId.value=id;openOverlay();document.getElementById('noteModal').classList.add('open');setTimeout(()=>f.elements.text.focus(),100)}
+    function closeNoteModal(){document.getElementById('noteModal').classList.remove('open');refreshOverlay()}
+    function closeDrawer(refresh=true){document.getElementById('drawer').classList.remove('open');document.getElementById('drawer').setAttribute('aria-hidden','true');if(refresh)refreshOverlay()}
+    function openOverlay(){document.getElementById('overlay').classList.add('open')}
+    function refreshOverlay(){document.getElementById('overlay').classList.toggle('open',!!document.querySelector('.modal.open,.drawer.open'))}
+    function closeTopLayer(){const openModal=document.querySelector('.modal.open');if(openModal){openModal.classList.remove('open');refreshOverlay();return}closeDrawer()}
+
+    function saveProject(event){
+      event.preventDefault();const f=new FormData(event.target),id=Number(f.get('id'))||null;
+      const year=(String(f.get('agreementDate')||localISODate())).slice(0,4);const data={company:String(f.get('company')).trim(),title:String(f.get('title')).trim(),agency:String(f.get('agency')),program:String(f.get('program')).trim(),status:String(f.get('status')),writingFee:Number(f.get('writingFee')||0),technicalFee:Number(f.get('technicalFee')||0),currency:String(f.get('currency')),agreementDate:String(f.get('agreementDate')||''),deadline:String(f.get('deadline')||''),contactName:String(f.get('contactName')).trim(),contactPhone:String(f.get('contactPhone')).trim(),contactEmail:String(f.get('contactEmail')).trim()};
+      if(id){const p=projects.find(x=>x.id===id);if(!p)return;Object.assign(p,data);const note=String(f.get('note')||'').trim();if(note)p.notes.unshift({id:uid(),date:localISODate(),text:note});activeProjectId=id}
+      else{const p=normalizeProject({id:uid(),code:generateProjectCode(year),...data,payments:[],notes:[]});const initial=Number(f.get('initialPayment')||0);if(initial>0)p.payments.push({id:uid(),amount:initial,date:String(f.get('initialPaymentDate')||localISODate()),description:'İlk tahsilat'});const note=String(f.get('note')||'').trim();if(note)p.notes.push({id:uid(),date:localISODate(),text:note});projects.unshift(p);activeProjectId=p.id}
+      persist();render();closeProjectModal();showToast(id?'Proje güncellendi.':'Proje kaydedildi.');openDrawer(activeProjectId);
+    }
+
+    function savePayment(event){event.preventDefault();const f=new FormData(event.target),p=projects.find(x=>x.id===Number(f.get('projectId')));if(!p)return;const amount=Number(f.get('amount'));if(!(amount>0))return;p.payments.push({id:uid(),amount,date:String(f.get('date')),description:String(f.get('description')).trim()||'Tahsilat'});persist();render();closePaymentModal();openDrawer(p.id);showToast('Tahsilat kaydedildi.')}
+    function saveNote(event){event.preventDefault();const f=new FormData(event.target),p=projects.find(x=>x.id===Number(f.get('projectId')));if(!p)return;const text=String(f.get('text')).trim();if(!text)return;p.notes.unshift({id:uid(),date:localISODate(),text});persist();render();closeNoteModal();openDrawer(p.id);showToast('Not kaydedildi.')}
+    function deletePayment(projectId,paymentId,fromTable=false){if(!confirm('Bu tahsilat kaydı silinsin mi?'))return;const p=projects.find(x=>x.id===Number(projectId));if(!p)return;p.payments=p.payments.filter(x=>x.id!==Number(paymentId));persist();render();if(!fromTable)openDrawer(p.id);showToast('Tahsilat silindi.')}
+    function deleteNote(projectId,noteId){if(!confirm('Bu not silinsin mi?'))return;const p=projects.find(x=>x.id===Number(projectId));if(!p)return;p.notes=p.notes.filter(x=>x.id!==Number(noteId));persist();render();openDrawer(p.id);showToast('Not silindi.')}
+    function deleteEditingProject(){const id=Number(document.getElementById('projectForm').elements.id.value);if(!id||!confirm('Bu proje, tahsilatları ve notlarıyla birlikte silinsin mi?'))return;projects=projects.filter(x=>x.id!==id);activeProjectId=null;persist();render();closeProjectModal();showToast('Proje silindi.')}
+
+    function clearProjectFilters(){document.getElementById('projectSearch').value='';document.getElementById('agencyFilter').value='';document.getElementById('statusFilter').value='';renderProjects()}
+    function clearPaymentFilters(){document.getElementById('paymentSearch').value='';document.getElementById('paymentCurrencyFilter').value='';document.getElementById('paymentMonthFilter').value='';renderPayments()}
+
+    function exportProjectsCSV(){const rows=[['Proje No','Firma','Proje Adı','Kurum','Program','Durum','Proje Yazım Ücreti','Teknik Danışmanlık Ücreti','Para Birimi','Tahsilat','Kalan','Anlaşma Tarihi','Proje Bitiş Tarihi','Yetkili','Telefon','E-posta'],...projects.map(p=>[p.code,p.company,p.title,p.agency,p.program,p.status,p.writingFee,p.technicalFee,p.currency,paidOf(p),balanceOf(p),p.agreementDate,p.deadline,p.contactName,p.contactPhone,p.contactEmail])];downloadCSV(rows,'proje-raporu.csv')}
+    function exportPaymentsCSV(){const rows=[['Tarih','Proje No','Firma','Proje','Açıklama','Para Birimi','Tutar'],...allPayments().map(x=>[x.date,x.code,x.company,x.title,x.description,x.currency,x.amount])];downloadCSV(rows,'tahsilat-raporu.csv')}
+    function downloadCSV(rows,name){const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(';')).join('\n');downloadBlob(csv,name,'text/csv;charset=utf-8')}
+    function downloadBackup(){downloadBlob(JSON.stringify({version:3,exportedAt:new Date().toISOString(),projects},null,2),`proje-takip-yedek-${localISODate()}.json`,'application/json');showToast('Yedek dosyası indirildi.')}
+    function importBackup(event){const file=event.target.files&&event.target.files[0];event.target.value='';if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result);const list=Array.isArray(parsed)?parsed:parsed.projects;if(!Array.isArray(list))throw new Error('Geçersiz yedek');if(!confirm(`${list.length} proje yüklenecek ve mevcut kayıtların yerini alacak. Devam edilsin mi?`))return;projects=assignMissingCodes(list.map(normalizeProject));persist();render();showToast('Yedek başarıyla yüklendi.')}catch{alert('Yedek dosyası okunamadı. Lütfen bu uygulamadan alınan JSON yedeğini seçin.')}};reader.readAsText(file,'utf-8')}
+    function downloadBlob(content,name,type){const a=document.createElement('a');const url=URL.createObjectURL(new Blob([content],{type}));a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+    function showToast(text){const t=document.getElementById('toast');clearTimeout(toastTimer);t.textContent=text;t.classList.add('show');toastTimer=setTimeout(()=>t.classList.remove('show'),2300)}
+
+    function isSupabaseConfigured(){
+      return SUPABASE_URL.startsWith('https://')&&!SUPABASE_URL.includes('BURAYA_')&&SUPABASE_PUBLISHABLE_KEY.length>30&&!SUPABASE_PUBLISHABLE_KEY.includes('BURAYA_');
+    }
+
+    function showAuthError(message=''){
+      const el=document.getElementById('authError');
+      el.textContent=message;
+      el.classList.toggle('show',!!message);
+    }
+
+    function setAuthBusy(busy,text='Giriş Yap'){
+      const button=document.getElementById('loginButton');
+      if(button){button.disabled=busy;button.textContent=busy?'Giriş yapılıyor...':text}
+    }
+
+    function showLoginScreen(){
+      currentUser=null;
+      cloudReady=false;
+      document.getElementById('appShell').classList.remove('authenticated');
+      document.getElementById('authScreen').style.display='grid';
+      document.getElementById('loginForm').hidden=false;
+      document.getElementById('recoveryForm').hidden=true;
+      document.getElementById('forgotPasswordButton').hidden=false;
+      showAuthError('');
+    }
+
+    async function showAuthenticatedApp(user){
+      if(!user)return showLoginScreen();
+      const sameUser=currentUser&&currentUser.id===user.id&&cloudReady;
+      currentUser=user;
+      document.getElementById('currentUserEmail').textContent=user.email||'';
+      document.getElementById('authScreen').style.display='none';
+      document.getElementById('appShell').classList.add('authenticated');
+      if(!sameUser)await loadCloudState();
+    }
+
+    async function handleLogin(event){
+      event.preventDefault();
+      if(!supabaseClient)return showAuthError('Supabase bağlantısı henüz yapılandırılmadı.');
+      const form=new FormData(event.target);
+      const email=String(form.get('email')||'').trim();
+      const password=String(form.get('password')||'');
+      showAuthError('');
+      setAuthBusy(true);
+      try{
+        const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+        if(error)throw error;
+        await showAuthenticatedApp(data.user);
+      }catch(err){
+        console.error(err);
+        const message=err?.message==='Invalid login credentials'?'E-posta veya şifre hatalı.':(err?.message||'Giriş yapılamadı.');
+        showAuthError(message);
+      }finally{setAuthBusy(false)}
+    }
+
+    async function handleLogout(){
+      if(!supabaseClient)return;
+      if(cloudReady)await saveCloudState();
+      await supabaseClient.auth.signOut();
+      projects=[];
+      showLoginScreen();
+    }
+
+    async function sendPasswordReset(){
+      if(!supabaseClient)return showAuthError('Supabase bağlantısı henüz yapılandırılmadı.');
+      const email=document.querySelector('#loginForm [name="email"]').value.trim();
+      if(!email)return showAuthError('Önce e-posta adresinizi yazın.');
+      showAuthError('');
+      try{
+        const redirectTo=window.location.origin+window.location.pathname;
+        const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo});
+        if(error)throw error;
+        showToast('Şifre yenileme bağlantısı e-posta adresinize gönderildi.');
+      }catch(err){showAuthError(err?.message||'Şifre yenileme e-postası gönderilemedi.')}
+    }
+
+    function showRecoveryScreen(){
+      document.getElementById('appShell').classList.remove('authenticated');
+      document.getElementById('authScreen').style.display='grid';
+      document.getElementById('loginForm').hidden=true;
+      document.getElementById('recoveryForm').hidden=false;
+      document.getElementById('forgotPasswordButton').hidden=true;
+      document.querySelector('#recoveryForm [name="password"]').focus();
+    }
+
+    async function handlePasswordUpdate(event){
+      event.preventDefault();
+      const form=new FormData(event.target);
+      const password=String(form.get('password')||'');
+      const passwordAgain=String(form.get('passwordAgain')||'');
+      if(password!==passwordAgain)return showAuthError('Şifreler aynı değil.');
+      if(password.length<8)return showAuthError('Şifre en az 8 karakter olmalıdır.');
+      try{
+        const {data,error}=await supabaseClient.auth.updateUser({password});
+        if(error)throw error;
+        showToast('Şifreniz güncellendi.');
+        await showAuthenticatedApp(data.user);
+      }catch(err){showAuthError(err?.message||'Şifre güncellenemedi.')}
+    }
+
+    async function init(){
+      const statusFilter=document.getElementById('statusFilter'),projectStatus=document.getElementById('projectStatus');
+      STATUSES.forEach(s=>{statusFilter.add(new Option(s,s));projectStatus.add(new Option(s,s))});
+      document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopLayer()});
+
+      if(!isSupabaseConfigured()){
+        document.getElementById('configWarning').classList.add('show');
+        document.getElementById('loginButton').disabled=true;
+        return;
+      }
+
+      supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{
+        auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+      });
+
+      const isPasswordSetupFlow=()=>{
+        const params=new URLSearchParams(window.location.hash.replace(/^#/,''));
+        return ['recovery','invite'].includes(params.get('type'));
+      };
+
+      supabaseClient.auth.onAuthStateChange((event,session)=>{
+        setTimeout(()=>{
+          if(event==='PASSWORD_RECOVERY'||isPasswordSetupFlow())showRecoveryScreen();
+          else if(event==='SIGNED_OUT')showLoginScreen();
+          else if(session?.user&&['SIGNED_IN','INITIAL_SESSION','TOKEN_REFRESHED','USER_UPDATED'].includes(event))showAuthenticatedApp(session.user);
+        },0);
+      });
+
+      const {data:{session},error}=await supabaseClient.auth.getSession();
+      if(error)showAuthError(error.message);
+      if(session?.user&&isPasswordSetupFlow())showRecoveryScreen();
+      else if(session?.user)await showAuthenticatedApp(session.user);
+      else showLoginScreen();
+    }
+    init();
+  </script>
+</body>
+</html>
